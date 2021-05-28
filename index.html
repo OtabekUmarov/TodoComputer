@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+
+  <div id="app">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">ToDo list</h5>
+            <button type="button" class="btn-close" @click='modalActive = !modalActive' data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><b>Jadval</b></p>
+            <div class="mb-4">
+              <label class="form-check-label me-2">
+                <input class="form-check-input" type="radio" value='On hold' v-model='jadval' required>On hold
+              </label>
+              <label class="form-check-label me-2">
+                <input class="form-check-input" type="radio" value='Completed' v-model='jadval' required>Completed
+              </label>
+            </div>
+
+            <input type="text" class="form-control mb-3" placeholder="So'z kiriting" v-model='list.matn'>
+            <div>
+              <p class="my-1"><b>Tanlang</b></p>
+              <label class="form-check-label me-3">
+                <input class="form-check-input" type="radio" value='Pending' v-model='list.status'>Pending
+              </label>
+              <label class="form-check-label me-3">
+                <input class="form-check-input" type="radio" value='In Progress' v-model='list.status'>In
+                Progress
+              </label>
+              <label class="form-check-label me-3">
+                <input class="form-check-input" type="radio" value='Completed' v-model='list.status'>Completed
+              </label>
+              <label class="form-check-label">
+                <input class="form-check-input" type="radio" value='Cancelled' v-model='list.status'>Cancelled
+              </label>
+            </div>
+            <div>
+              <p class="mt-3 mb-1"><b>Tanlang</b></p>
+              <label class="form-check-label me-2">
+                <input class="form-check-input" type="radio" value='Minor' v-model='list.turi'>Minor
+              </label>
+              <label class="form-check-label me-2">
+                <input class="form-check-input" type="radio" value='Normal' v-model='list.turi'>Normal
+              </label>
+              <label class="form-check-label">
+                <input class="form-check-input" type="radio" value='Critical' v-model='list.turi'>Critical
+              </label>
+            </div>
+            <div>
+              <p class="mt-3"><b>Who</b></p>
+              <label class="me-2"> <input type="checkbox" v-model='list.soni' value="1">Anna</label>
+              <label class="me-2"> <input type="checkbox" v-model='list.soni' value="2">Jack</label>
+              <label> <input type="checkbox" v-model='list.soni' value="3">John</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" v-show='modalActive' data-bs-dismiss="modal"
+              @click='saqla'><i class="bi bi-save2 me-2"></i>Saqlash</button>
+            <button type="button" class="btn btn-primary" v-show='!modalActive' data-bs-dismiss="modal" @click='add'><i
+                class="bi bi-list-check me-2"></i>Ro'yhatga olish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-md mt-3">
+      <div class="form mb-4">
+        <div class="input-group mb-3 position-relative">
+          <span class="input-group-text border-0 bg-white">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="border-0 form-control" placeholder="Search for any training you want "
+            v-model='search'>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div>
+          <span class="fs-1 fw-bold align-middle">You’ve got <span class="text-danger">7 task</span> today
+          </span>
+          <button class="btn btn-success align-ms-3 ms-4" data-bs-toggle="modal" data-bs-target="#exampleModal"><i
+              class="bi bi-person-x-fill me-2"></i>Add
+            New</button>
+        </div>
+      </div>
+      <div>
+        <h3>On Hold</h3>
+      </div>
+      <table class="table mb-5">
+        <thead>
+          <tr v-for='(todo, index) of filterList'>
+            <td class="w-50"><i class="bi bi-circle-fill text-warning"></i> {{todo.matn}}</td>
+            <td class="text-center"><span
+                class="d-inline-block bg-info text-white py-1 w-75 rounded-pill">{{todo.status}}</span></td>
+            <td><i class="bi bi-record-circle-fill text-success"></i> {{todo.turi}}</td>
+
+            <td><img v-for='son of todo.soni' :src="`rasm${son}.png`" class="d-inline"
+                style="width: 20px; height: 20px;" alt=""></td>
+            <td class="text-end">
+              <div>
+                <button @click='show = !show' v-show='show' class="btn btn-light rounded-circle"><i
+                    class="bi bi-three-dots"></i></button>
+                <button class="btn btn-outline-danger" v-show='!show' @click='del(index), show = !show'><i
+                    class="bi bi-person-x"></i></button>
+                <button class="btn btn-outline-warning" v-show='!show' @click='edit(index), show = !show'
+                  data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-pen"></i></button>
+              </div>
+            </td>
+          </tr>
+        </thead>
+      </table>
+      <div>
+        <h3 class="d-inline-block">Completed</h3> <span class="bg-danger text-white px-3 rounded-pill">Inactive</span>
+      </div>
+      <table class="table text-secondary">
+        <thead>
+          <tr v-for='(todo2, index) of filterList2'>
+            <td class="w-50"><i class="bi bi-circle-fill text-secondary"></i> {{todo2.matn}}</td>
+            <td class="text-center"><span
+                class="d-inline-block bg-secondary text-white py-1 w-75 rounded-pill">{{todo2.status}}</span></td>
+            <td><i class="bi bi-record-circle-fill text-danger"></i> {{todo2.turi}}</td>
+            <td><img v-for='son of todo2.soni' :src="`rasm${son}.png`" class="d-inline"
+                style="width: 20px; height: 20px;" alt=""></td>
+            <td class="text-end">
+              <div>
+                <button @click='show2 = !show2' v-show='show2' class="btn btn-light rounded-circle"><i
+                    class="bi bi-three-dots"></i></button>
+                <button class="btn btn-outline-danger" v-show='!show2' @click='del2(index), show2 = !show2'><i
+                    class="bi bi-person-x"></i></button>
+                <button class="btn btn-outline-warning" v-show='!show2' @click='edit2(index), show2 = !show2'
+                  data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="bi bi-pen"></i></button>
+              </div>
+            </td>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        list: {
+          soni: []
+        },
+        lists: [],
+        lists2: [],
+        search: '',
+        show: true,
+        show2: true,
+        timeIndex: 0,
+        timeIndex2: 0,
+        modalActive: false,
+        jadval: ''
+      },
+      methods: {
+        edit(index) {
+          this.list = this.lists[index]
+          this.timeIndex = index
+          this.modalActive = true
+        },
+        edit2(index) {
+          this.list = this.lists2[index]
+          this.timeIndex2 = index
+          this.modalActive = true
+        },
+        add() {
+          if (this.list.matn == '' || this.list.status == '' || this.list.turi == '') {
+            return true
+          }
+          if (this.jadval == 'On hold') {
+            this.lists.push(this.list)
+            this.saveLoc()
+          } else {
+            this.lists2.push(this.list)
+            this.saveLoc2()
+          }
+          this.list = {
+            soni: []
+          }
+        },
+        del(index) {
+          if (confirm('Qaroringiz aniqmi?')) {
+            this.lists.splice(index, 1)
+            this.saveLoc()
+          }
+        },
+        del2(index) {
+          this.lists2.splice(index, 1)
+          this.saveLoc2()
+        },
+        saqla() {
+          if (this.jadval == 'On hold') {
+            this.lists[this.timeIndex] = this.list
+            this.saveLoc()
+          } else {
+            this.lists2[this.timeIndex2] = this.list
+            this.saveLoc2()
+          }
+          this.saveLoc()
+          this.list = {
+            soni: []
+          }
+        },
+        saveLoc() {
+          localStorage.setItem('lists', JSON.stringify(this.lists))
+        },
+        saveLoc2() {
+          localStorage.setItem('lists2', JSON.stringify(this.lists2))
+        }
+      },
+      computed: {
+        filterList() {
+          return this.lists.filter(list => {
+            return list.matn.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+          })
+        },
+        filterList2() {
+          return this.lists2.filter(list => {
+            return list.matn.toLowerCase().indexOf(this.search.toLowerCase()) !== -1
+          })
+        }
+      },
+      created() {
+        if (localStorage.getItem('lists')) {
+          try {
+            this.lists = JSON.parse(localStorage.getItem('lists'))
+          } catch (error) {
+            localStorage.removeItem('lists')
+          }
+        }
+        if (localStorage.getItem('lists2')) {
+          try {
+            this.lists2 = JSON.parse(localStorage.getItem('lists2'))
+          } catch (error) {
+            localStorage.removeItem('lists2')
+          }
+        }
+      }
+    })
+  </script>
+
+</body>
+
+</html>
